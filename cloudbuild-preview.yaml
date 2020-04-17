@@ -12,8 +12,9 @@ steps:
       [
         "REACT_APP_GOOGLE_ANALYTICS_KEY=$_GOOGLE_ANALYTICS_KEY",
         "REACT_APP_BUILD=$BUILD_ID",
-        "REACT_APP_VERSION=NPM_PACKAGE_NAME",
-        "REACT_APP_NAME=NPM_PACKAGE_VERSION",
+        "REACT_APP_VERSION=$NPM_PACKAGE_NAME",
+        "REACT_APP_NAME=$NPM_PACKAGE_VERSION",
+        "REACT_APP_BRANCH_NAME=$BRANCH_NAME",
       ]
   - name: node
     entrypoint: "./node_modules/.bin/firebase"

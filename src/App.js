@@ -1,5 +1,5 @@
 import React from "react";
-import { VERSION, BUILD, GOOGLE_ANALYTICS_KEY } from "./config";
+import { VERSION, BUILD, GOOGLE_ANALYTICS_KEY, BRANCH_NAME } from "./config";
 
 function App() {
   return (
@@ -8,6 +8,7 @@ function App() {
       <h3>Version: {VERSION}</h3>
       <h4>Build: {BUILD}</h4>
       <h5>Analytcs: {GOOGLE_ANALYTICS_KEY}</h5>
+      <h6>Branch: {BRANCH_NAME}</h6>
     </div>
   );
 }
