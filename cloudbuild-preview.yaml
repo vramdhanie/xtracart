@@ -25,5 +25,5 @@ steps:
         "--token",
         "$_TOKEN",
         "--only",
-        "hosting:preview-xtra",
+        "hosting:xtracart-preview",
       ]
