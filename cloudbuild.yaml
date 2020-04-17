@@ -1,12 +1,12 @@
 steps:
   - name: node
-    entrypoint: npm
+    entrypoint: yarn
     args: ["install"]
   - name: node
-    entrypoint: npm
+    entrypoint: yarn
     args: ["add", "firebase-tools"]
   - name: node
-    entrypoint: npm
+    entrypoint: yarn
     args: ["build"]
     env:
       [
