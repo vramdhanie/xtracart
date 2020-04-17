@@ -1,6 +1,7 @@
 # Xtra Cart
 
 ![GitHub](https://img.shields.io/github/license/vramdhanie/xtracart)
+![GitHub package.json version](https://img.shields.io/github/package-json/v/vramdhanie/xtracart)
 
 A retail shopping platform
 
