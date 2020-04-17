@@ -11,6 +11,7 @@
     "react-scripts": "3.4.1"
   },
   "scripts": {
+    "//prebuild": "perl -i.orig -pe 's/(\\d+)/$1+1 . $2/e' buildnumber.dat && rm buildnumber.dat",
     "start": "npm run watch:css && react-scripts start",
     "build": "npm run build:css && react-scripts build",
     "test": "react-scripts test",

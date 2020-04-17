@@ -1,0 +1,27 @@
+steps:
+  - name: node
+    entrypoint: yarn
+    args: ["install"]
+  - name: node
+    entrypoint: yarn
+    args: ["add", "firebase-tools"]
+  - name: node
+    entrypoint: yarn
+    args: ["build"]
+    env:
+      [
+        "_GOOGLE_ANALYTICS_KEY=$_GOOGLE_ANALYTICS_KEY",
+        "REACT_APP_BUILD=$BUILD_ID",
+      ]
+  - name: node
+    entrypoint: "./node_modules/.bin/firebase"
+    args:
+      [
+        "deploy",
+        "--project",
+        "$PROJECT_ID",
+        "--token",
+        "$_TOKEN",
+        "--only",
+        "hosting:xtracart",
+      ]
