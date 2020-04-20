@@ -1,14 +1,37 @@
 import React, { useState } from "react";
+import classNames from "classnames";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
 const Login = () => {
   const [login, setLogin] = useState(true);
+  const formik = useFormik({
+    initialValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+    },
+    validationSchema: Yup.object({
+      email: Yup.string()
+        .email("Invalid email address")
+        .required("Email address is required"),
+      password: Yup.string()
+        .min(6, "Password must be at least 6 characters long")
+        .required("Please enter a password"),
+    }),
+    onSubmit: (values) => {
+      console.log("Perform form submit here: ", JSON.stringify(values));
+    },
+  });
+
   return (
     <div className="p-2">
       <div className="w-1/2 mx-auto my-8">
         <h2 className="font-bold text-xl mb-2 text-gray-700">
           {login ? "Login" : "Create an account"}
         </h2>
-        <form>
+        <form onSubmit={formik.handleSubmit}>
           {!login && (
             <div className="flex flex-wrap -mx-3 mb-6">
               <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
@@ -23,10 +46,9 @@ const Login = () => {
                   id="grid-first-name"
                   type="text"
                   placeholder="Jane"
+                  name="firstName"
+                  {...formik.getFieldProps("firstName")}
                 />
-                <p className="text-red-500 text-xs italic hidden">
-                  Please fill out this field.
-                </p>
               </div>
               <div className="w-full md:w-1/2 px-3">
                 <label
@@ -40,6 +62,8 @@ const Login = () => {
                   id="grid-last-name"
                   type="text"
                   placeholder="Doe"
+                  name="lastName"
+                  {...formik.getFieldProps("lastName")}
                 />
               </div>
             </div>
@@ -51,15 +75,31 @@ const Login = () => {
                 className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                 htmlFor="grid-email"
               >
-                Email
+                Email <span className="text-red-500">*</span>
               </label>
               <input
-                className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                className={classNames(
+                  "appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500",
+                  {
+                    "border-gray-200": !(
+                      formik.touched.email && formik.errors.email
+                    ),
+                    "border-red-500":
+                      formik.touched.email && formik.errors.email,
+                  }
+                )}
                 id="grid-email"
                 type="email"
                 placeholder="Your email"
+                name="email"
+                {...formik.getFieldProps("email")}
               />
               <p className="text-gray-600 text-xs italic"></p>
+              {formik.touched.email && formik.errors.email ? (
+                <p className="text-red-500 text-xs italic">
+                  {formik.errors.email}
+                </p>
+              ) : null}
             </div>
           </div>
 
@@ -69,17 +109,33 @@ const Login = () => {
                 className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                 htmlFor="grid-password"
               >
-                Password
+                Password <span className="text-red-500">*</span>
               </label>
               <input
-                className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                className={classNames(
+                  "appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500",
+                  {
+                    "border-gray-200": !(
+                      formik.touched.password && formik.errors.password
+                    ),
+                    "border-red-500":
+                      formik.touched.password && formik.errors.password,
+                  }
+                )}
                 id="grid-password"
                 type="password"
                 placeholder="******************"
+                name="password"
+                {...formik.getFieldProps("password")}
               />
               <p className="text-gray-600 text-xs italic">
-                Make it as long and as crazy as you'd like
+                Must be at least 6 characters long
               </p>
+              {formik.touched.password && formik.errors.password ? (
+                <p className="text-red-500 text-xs italic">
+                  {formik.errors.password}
+                </p>
+              ) : null}
             </div>
           </div>
           <div className="flex items-center justify-end py-2">
