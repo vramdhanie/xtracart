@@ -12,7 +12,7 @@ import Footer from "./components/footer/footer";
 function App() {
   return (
     <Router>
-      <div className="container h-screen flex flex-col">
+      <div className="h-screen flex flex-col w-screen">
         <Header />
         <main className="flex-1">
           <Switch>
