@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 import classNames from "classnames";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -44,7 +44,7 @@ const Login = () => {
         <h2 className="font-bold text-xl mb-2 text-gray-700">
           {login ? "Login" : "Create an account"}
         </h2>
-        <form onSubmit={formik.handleSubmit}>
+        <form onSubmit={formik.handleSubmit} className="w-11/12">
           {!login && (
             <div className="flex flex-wrap -mx-3 mb-6">
               <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
@@ -154,7 +154,7 @@ const Login = () => {
           {firebaseError && (
             <div className="text-red-500 text-sm"> {firebaseError}</div>
           )}
-          <div className="flex items-center justify-end py-2">
+          <div className="flex items-center justify-center lg:justify-end py-2">
             <button
               className="flex-shrink-0 bg-teal-500 hover:bg-teal-700 border-teal-500 hover:border-teal-700 text-sm border-4 text-white py-1 px-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
               type="submit"
@@ -173,6 +173,11 @@ const Login = () => {
             </button>
           </div>
         </form>
+        <div className="border-t border-gray-200 text-center p-4 mt-2">
+          <Link to="/forgot" className="text-blue-800 hover:text-teal-500">
+            Forgot password?
+          </Link>
+        </div>
       </div>
     </div>
   );

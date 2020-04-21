@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useContext } from "react";
 import { withRouter, NavLink } from "react-router-dom";
 import { MdShoppingCart } from "react-icons/md";
 import logo from "../../images/full_logo.png";
-import useAuth from "../../hooks/useAuth";
+import { FirebaseContext } from "../../firebase";
 
 const Header = () => {
-  const user = useAuth();
+  const { user, firebase } = useContext(FirebaseContext);
+
   return (
     <header className="flex justify-between p-1 border-b">
       <div className="flex items-center flex-1">
@@ -20,11 +21,23 @@ const Header = () => {
         >
           <MdShoppingCart /> Cart
         </NavLink>
-        <div>|</div>
-        <NavLink to="/login" className="p-1 hover:text-teal-500">
-          Login
-        </NavLink>
-        {user && user.displayName}
+        <div className="px-1">|</div>
+        {user ? (
+          <>
+            <div>{user.displayName}</div>
+            <div className="px-1">|</div>
+            <div
+              className="cursor-pointer hover:text-teal-500"
+              onClick={() => firebase.logout()}
+            >
+              logout
+            </div>
+          </>
+        ) : (
+          <NavLink to="/login" className="p-1 hover:text-teal-500">
+            Login
+          </NavLink>
+        )}
       </div>
     </header>
   );
