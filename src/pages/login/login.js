@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import classNames from "classnames";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import firebase from "../../firebase";
 
 const Login = () => {
   const [login, setLogin] = useState(true);
@@ -20,9 +21,13 @@ const Login = () => {
         .min(6, "Password must be at least 6 characters long")
         .required("Please enter a password"),
     }),
-    onSubmit: (values) => {
-      console.log("Perform form submit here: ", JSON.stringify(values));
-      console.log(formik.isSubmitting);
+    onSubmit: async (values) => {
+      const { firstName, lastName, email, password } = values;
+      const response = login
+        ? await firebase.login(email, password)
+        : await firebase.register(firstName, lastName, email, password);
+
+      console.log(response);
     },
   });
 
