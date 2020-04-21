@@ -2,8 +2,10 @@ import React from "react";
 import { withRouter, NavLink } from "react-router-dom";
 import { MdShoppingCart } from "react-icons/md";
 import logo from "../../images/full_logo.png";
+import useAuth from "../../hooks/useAuth";
 
 const Header = () => {
+  const user = useAuth();
   return (
     <header className="flex justify-between p-1 border-b">
       <div className="flex items-center flex-1">
@@ -22,6 +24,7 @@ const Header = () => {
         <NavLink to="/login" className="p-1 hover:text-teal-500">
           Login
         </NavLink>
+        {user && user.displayName}
       </div>
     </header>
   );

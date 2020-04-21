@@ -1,11 +1,14 @@
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 import classNames from "classnames";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import firebase from "../../firebase";
 
 const Login = () => {
+  const history = useHistory();
   const [login, setLogin] = useState(true);
+  const [firebaseError, setFirebaseError] = useState(null);
   const formik = useFormik({
     initialValues: {
       firstName: "",
@@ -23,11 +26,15 @@ const Login = () => {
     }),
     onSubmit: async (values) => {
       const { firstName, lastName, email, password } = values;
-      const response = login
-        ? await firebase.login(email, password)
-        : await firebase.register(firstName, lastName, email, password);
-
-      console.log(response);
+      try {
+        login
+          ? await firebase.login(email, password)
+          : await firebase.register(firstName, lastName, email, password);
+        history.push("/");
+      } catch (err) {
+        console.error("Authentication Error", err);
+        setFirebaseError(err.message);
+      }
     },
   });
 
@@ -137,13 +144,16 @@ const Login = () => {
               <p className="text-gray-600 text-xs italic">
                 Must be at least 6 characters long
               </p>
-              {formik.touched.password && formik.errors.password ? (
+              {formik.touched.password && formik.errors.password && (
                 <p className="text-red-500 text-xs italic">
                   {formik.errors.password}
                 </p>
-              ) : null}
+              )}
             </div>
           </div>
+          {firebaseError && (
+            <div className="text-red-500 text-sm"> {firebaseError}</div>
+          )}
           <div className="flex items-center justify-end py-2">
             <button
               className="flex-shrink-0 bg-teal-500 hover:bg-teal-700 border-teal-500 hover:border-teal-700 text-sm border-4 text-white py-1 px-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
