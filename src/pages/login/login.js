@@ -22,6 +22,7 @@ const Login = () => {
     }),
     onSubmit: (values) => {
       console.log("Perform form submit here: ", JSON.stringify(values));
+      console.log(formik.isSubmitting);
     },
   });
 
@@ -140,8 +141,9 @@ const Login = () => {
           </div>
           <div className="flex items-center justify-end py-2">
             <button
-              className="flex-shrink-0 bg-teal-500 hover:bg-teal-700 border-teal-500 hover:border-teal-700 text-sm border-4 text-white py-1 px-2 rounded"
+              className="flex-shrink-0 bg-teal-500 hover:bg-teal-700 border-teal-500 hover:border-teal-700 text-sm border-4 text-white py-1 px-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
               type="submit"
+              disabled={formik.isSubmitting}
             >
               {login ? "Log in" : "Sign Up"}
             </button>
