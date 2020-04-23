@@ -1,7 +1,34 @@
-import React from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { FirebaseContext } from "../../firebase";
+import ProductCard from "../../components/product/productCard";
 
 const Shop = () => {
-  return <div>The shop</div>;
+  const { firebase } = useContext(FirebaseContext);
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const prodRef = firebase.db.collection("products");
+    prodRef
+      .limit(10)
+      .get()
+      .then((snapshot) =>
+        setProducts(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })))
+      );
+  }, [firebase.db]);
+  return (
+    <div className="p-2">
+      <div className="w-11/12 p-2">
+        <h2 className="font-bold text-xl text-blue-800 px-4 py-2">Specials</h2>
+        <div className="m-3 mx-auto grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 row-gap-3">
+          {products.length
+            ? products.map((product) => (
+                <ProductCard {...product} key={product.id} />
+              ))
+            : "Loading..."}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Shop;

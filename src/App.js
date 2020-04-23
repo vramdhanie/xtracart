@@ -10,6 +10,7 @@ import Header from "./components/header/header";
 import Footer from "./components/footer/footer";
 import firebase, { FirebaseContext } from "./firebase";
 import useAuth from "./hooks/useAuth";
+import Admin from "./pages/admin/admin";
 
 function App() {
   const user = useAuth();
@@ -26,6 +27,7 @@ function App() {
               <Route path="/checkout" component={Checkout} />
               <Route path="/cart" component={Cart} />
               <Route path="/product/:id" component={Product} />
+              <Route path="/admin" component={Admin} />
             </Switch>
           </main>
           <Footer />
