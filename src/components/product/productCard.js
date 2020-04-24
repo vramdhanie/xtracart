@@ -6,13 +6,13 @@ const ProductCard = ({ name, description, image, price }) => {
     currency: "USD",
   });
   return (
-    <div className="max-w-xs w-48 rounded overflow-hidden shadow-lg mx-auto">
+    <div className="max-w-xs w-full rounded overflow-hidden  mx-auto flex flex-col shadow-lg">
       <img src={image} alt={description} className="w-full" />
-      <div className="px-6 py-4">
+      <div className="px-6 py-4 flex-1">
         <div className="font-bold text-xl mb-2">{name}</div>
         <p className="text-gray-700 text-base">{description}</p>
       </div>
-      <div className="px-6 py-4 flex justify-around">
+      <div className="px-4 py-4 flex justify-between items-center">
         <div className="text-lg text-red-400 font-bold">
           {formatter.format(price)}
         </div>
