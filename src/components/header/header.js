@@ -15,10 +15,6 @@ const Header = () => {
         </NavLink>
       </div>
       <div className="flex items-center">
-        <NavLink to="/admin" className="p-1 hover:text-teal-500">
-          Admin
-        </NavLink>
-
         <NavLink
           to="/cart"
           className="p-1 flex items-center hover:text-teal-500"

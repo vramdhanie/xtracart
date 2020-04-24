@@ -12,15 +12,17 @@ class Firebase {
     this.db = app.firestore();
   }
 
-  async register(firstName, lastName, email, password) {
+  async register(fullName, phoneNumber, email, password) {
     const newUser = await this.auth.createUserWithEmailAndPassword(
       email,
       password
     );
+
+    const usar = await this.db
+      .collection("users")
+      .add({ id: newUser.user.uid, phoneNumber });
     return await newUser.user.updateProfile({
-      firstName,
-      lastName,
-      displayName: firstName,
+      displayName: fullName,
     });
   }
 
