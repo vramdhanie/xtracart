@@ -2,20 +2,17 @@ import React, { useEffect, useState, useContext } from "react";
 import { FirebaseContext } from "../../firebase";
 import ProductCard from "../../components/product/productCard";
 import CartSummary from "../../components/cart/cartSummary";
+import InventoryContext from "../../data/inventoryContext";
 
 const Shop = () => {
   const { firebase } = useContext(FirebaseContext);
+  const { inventory } = useContext(InventoryContext);
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    const prodRef = firebase.db.collection("products");
-    prodRef
-      .limit(10)
-      .get()
-      .then((snapshot) =>
-        setProducts(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })))
-      );
-  }, [firebase.db]);
+    inventory.getItems().then((items) => setProducts(items));
+  }, [inventory]);
+
   return (
     <div className="">
       <CartSummary />

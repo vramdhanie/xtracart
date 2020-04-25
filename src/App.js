@@ -10,28 +10,36 @@ import Header from "./components/header/header";
 import Footer from "./components/footer/footer";
 import firebase, { FirebaseContext } from "./firebase";
 import useAuth from "./hooks/useAuth";
+import useCart from "./hooks/useCart";
 import Admin from "./pages/admin/admin";
+import useInventory from "./hooks/useInventory";
+import InventoryContext from "./data/inventoryContext";
 
 function App() {
   const user = useAuth();
+  const [cart, addItem] = useCart(firebase.db);
+  const inventory = useInventory(firebase.db);
+
   return (
     <Router>
       <FirebaseContext.Provider value={{ user, firebase }}>
-        <div className="h-screen flex flex-col w-screen">
-          <Header />
-          <main className="flex-1">
-            <Switch>
-              <Route path="/" exact component={Shop} />
-              <Route path="/login" component={Login} />
-              <Route path="/forgot" component={ForgotPassword} />
-              <Route path="/checkout" component={Checkout} />
-              <Route path="/cart" component={Cart} />
-              <Route path="/product/:id" component={Product} />
-              <Route path="/admin" component={Admin} />
-            </Switch>
-          </main>
-          <Footer />
-        </div>
+        <InventoryContext.Provider value={{ cart, addItem, inventory }}>
+          <div className="h-screen flex flex-col w-screen">
+            <Header />
+            <main className="flex-1">
+              <Switch>
+                <Route path="/" exact component={Shop} />
+                <Route path="/login" component={Login} />
+                <Route path="/forgot" component={ForgotPassword} />
+                <Route path="/checkout" component={Checkout} />
+                <Route path="/cart" component={Cart} />
+                <Route path="/product/:id" component={Product} />
+                <Route path="/admin" component={Admin} />
+              </Switch>
+            </main>
+            <Footer />
+          </div>
+        </InventoryContext.Provider>
       </FirebaseContext.Provider>
     </Router>
   );

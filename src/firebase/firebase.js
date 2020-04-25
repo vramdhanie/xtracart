@@ -18,7 +18,7 @@ class Firebase {
       password
     );
 
-    const usar = await this.db
+    await this.db
       .collection("users")
       .add({ id: newUser.user.uid, phoneNumber });
     return await newUser.user.updateProfile({
