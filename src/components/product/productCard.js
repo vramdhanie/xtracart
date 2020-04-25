@@ -7,15 +7,22 @@ const ProductCard = ({ name, description, image, price, id }) => {
     currency: "USD",
   });
 
-  const { cart, addItem, inventory } = useContext(InventoryContext);
+  const { cart, addItem, quantityOfItemInCart } = useContext(InventoryContext);
 
   const handleAddToCart = () => {
     const item = { id, name, description, image, price };
     addItem(item);
   };
 
+  const quantity = quantityOfItemInCart(id);
+
   return (
     <div className="max-w-xs w-full rounded overflow-hidden  mx-auto flex flex-col shadow-lg">
+      {!!quantity && (
+        <div className="bg-gray-300 self-end p-1 text-gray-700 rounded-bl">
+          {quantity} in cart
+        </div>
+      )}
       <img src={image} alt={description} className="w-full" />
       <div className="px-6 py-4 flex-1">
         <div className="font-bold text-xl mb-2">{name}</div>

@@ -24,10 +24,28 @@ function useCart(db) {
   //3. on login, merge the two carts
 
   function addItem(item) {
-    setCart((prevCart) => [...prevCart, item]);
+    item.quantity = 1;
+    item.dateAdded = Date.now();
+    const items = [...cart];
+    const inCartItem = items.find((i) => i.id === item.id);
+    if (inCartItem) {
+      inCartItem.quantity++;
+    } else {
+      items.push(item);
+    }
+    setCart(items);
   }
 
-  return [cart, addItem];
+  function quantityOfItemInCart(id) {
+    const item = cart.find((i) => i.id === id);
+    return item ? item.quantity : 0;
+  }
+
+  function cartTotal() {
+    return cart.reduce((acc, curr) => acc + curr.price * curr.quantity, 0);
+  }
+
+  return { cart, addItem, quantityOfItemInCart, cartTotal };
 }
 
 export default useCart;
