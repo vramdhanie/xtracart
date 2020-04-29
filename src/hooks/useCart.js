@@ -4,6 +4,10 @@ import useAuth from "./useAuth";
 function useCart(db) {
   const user = useAuth();
   const [cart, setCart] = useState([]);
+  const [guest_cart, setGuestCart] = useState([]);
+
+  localStorage.setItem("cart_token", 11111);
+  localStorage.setItem("cart_expiry", new Date(2020, 5, 21, 9, 30, 0));
 
   useEffect(() => {
     // check if a valid cart exist on the local storage
@@ -11,14 +15,18 @@ function useCart(db) {
     const cart_expiry = localStorage.getItem("cart_expiry");
     //if the cart is valid (not expired) fetch from server
     if (cart_token && cart_expiry && new Date(cart_expiry) > Date.now()) {
-      //   db.collection("guest_carts").where("token", "==", cart_token)
-      //   .then(snapshot => {
-      //       let prod_ref = db.child('product/' + )
-      //   })
+      db.collection("guest_carts")
+        .where("token", "==", cart_token)
+        .get()
+        .then((snapshot) => {
+          setGuestCart(
+            snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+          );
+        });
     }
 
     setCart([]);
-  }, [user]);
+  }, [user, db]);
   //1. if user is logged in fetch cart from server
   //2. check for cart in local storage - fetch that from server
   //3. on login, merge the two carts
@@ -45,7 +53,7 @@ function useCart(db) {
     return cart.reduce((acc, curr) => acc + curr.price * curr.quantity, 0);
   }
 
-  return { cart, addItem, quantityOfItemInCart, cartTotal };
+  return { cart, guest_cart, addItem, quantityOfItemInCart, cartTotal };
 }
 
 export default useCart;

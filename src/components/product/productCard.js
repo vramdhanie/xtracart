@@ -7,7 +7,7 @@ const ProductCard = ({ name, description, image, price, id }) => {
     currency: "USD",
   });
 
-  const { cart, addItem, quantityOfItemInCart } = useContext(InventoryContext);
+  const { addItem, quantityOfItemInCart } = useContext(InventoryContext);
 
   const handleAddToCart = () => {
     const item = { id, name, description, image, price };

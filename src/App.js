@@ -18,12 +18,15 @@ import InventoryContext from "./data/inventoryContext";
 function App() {
   const user = useAuth();
   const cartObject = useCart(firebase.db);
-  const inventory = useInventory(firebase.db);
+  const inventoryObject = useInventory(firebase.db);
+  console.log("app running");
 
   return (
     <Router>
       <FirebaseContext.Provider value={{ user, firebase }}>
-        <InventoryContext.Provider value={{ ...cartObject, inventory }}>
+        <InventoryContext.Provider
+          value={{ ...cartObject, ...inventoryObject }}
+        >
           <div className="h-screen flex flex-col w-screen">
             <Header />
             <main className="flex-1">

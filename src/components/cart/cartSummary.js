@@ -6,7 +6,7 @@ import { MdCheck } from "react-icons/md";
 
 const CartSummary = () => {
   const { user, firebase } = useContext(FirebaseContext);
-  const { cart, cartTotal } = useContext(InventoryContext);
+  const { cart, cartTotal, guest_cart } = useContext(InventoryContext);
   const lastItem = cart.length ? cart[cart.length - 1] : null;
   const formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -55,10 +55,11 @@ const CartSummary = () => {
         </div>
       ) : (
         <>
-          <div className="text-lg text-yellow-700 font-bold">
-            Welcome {user ? "back " + user.displayName : "Guest"}
+          <div className="text-lg text-yellow-700 font-bold p-1">
+            Welcome {user ? "back " + user.displayName : "Guest"}{" "}
+            {guest_cart.id}
           </div>
-          <div className="text-yellow-800 text-md">
+          <div className="text-yellow-800 text-md p-1">
             You do not have any items in your cart as yet. Browse or search
             below to start your shopping list!
           </div>
