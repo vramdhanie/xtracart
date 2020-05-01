@@ -13,7 +13,7 @@ const CartSummary = () => {
     currency: "USD",
   });
   return (
-    <div className="border-b border-yellow-500 mb-1 bg-yellow-100">
+    <div className="border-b border-yellow-500 mb-1 bg-yellow-100 ">
       {cart.length ? (
         <div className="text-yellow-800 text-md flex">
           {lastItem && (
@@ -46,7 +46,7 @@ const CartSummary = () => {
               Checkout Now
             </Link>
             <Link
-              to="/"
+              to="/cart"
               className="flex-shrink-0 border border-yellow-700 hover:bg-yellow-700  hover:text-white hover:bg-white gb-yellow-200 hover:border-yellow-500 text-sm border-4 text-yellow-700 py-1 px-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
             >
               View Cart
@@ -56,8 +56,7 @@ const CartSummary = () => {
       ) : (
         <>
           <div className="text-lg text-yellow-700 font-bold p-1">
-            Welcome {user ? "back " + user.displayName : "Guest"}{" "}
-            {guest_cart.id}
+            Welcome {user ? "back " + user.displayName : "Guest"}
           </div>
           <div className="text-yellow-800 text-md p-1">
             You do not have any items in your cart as yet. Browse or search

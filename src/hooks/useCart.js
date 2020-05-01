@@ -6,8 +6,8 @@ function useCart(db) {
   const [cart, setCart] = useState([]);
   const [guest_cart, setGuestCart] = useState([]);
 
-  localStorage.setItem("cart_token", 11111);
-  localStorage.setItem("cart_expiry", new Date(2020, 5, 21, 9, 30, 0));
+  // localStorage.setItem("cart_token", 11111);
+  // localStorage.setItem("cart_expiry", new Date(2020, 5, 21, 9, 30, 0));
 
   useEffect(() => {
     // check if a valid cart exist on the local storage
@@ -18,10 +18,27 @@ function useCart(db) {
       db.collection("guest_carts")
         .where("token", "==", cart_token)
         .get()
-        .then((snapshot) => {
-          setGuestCart(
-            snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-          );
+        .then(
+          (snapshot) =>
+            snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))[0]
+        )
+        .then((data) => {
+          return {
+            id: data.id,
+            items: data.items.map((item) =>
+              db
+                .collection("products")
+                .doc(item.id)
+                .get()
+                .then((product) => ({
+                  id: product.id,
+                  ...product.data(),
+                }))
+            ),
+          };
+        })
+        .then((data) => {
+          setGuestCart(data);
         });
     }
 

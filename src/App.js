@@ -19,7 +19,6 @@ function App() {
   const user = useAuth();
   const cartObject = useCart(firebase.db);
   const inventoryObject = useInventory(firebase.db);
-  console.log("app running");
 
   return (
     <Router>
