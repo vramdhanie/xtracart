@@ -23,10 +23,14 @@ const ProductCard = ({ name, description, image, price, id }) => {
           {quantity} in cart
         </div>
       )}
-      <img src={image} alt={description} className="w-full" />
-      <div className="px-6 py-4 flex-1">
-        <div className="font-bold text-xl mb-2">{name}</div>
-        <p className="text-gray-700 text-base">{description}</p>
+      <div className="flex md:flex-col">
+        <div className="flex-1 py-4">
+          <img src={image} alt={description} className="w-9/12 my-0 mx-auto" />
+        </div>
+        <div className="px-2 py-4 flex-1 md:px-6">
+          <div className="font-bold text-xl mb-2">{name}</div>
+          <p className="text-gray-700 text-base">{description}</p>
+        </div>
       </div>
       <div className="px-4 py-4 flex justify-between items-center">
         <div className="text-lg text-red-400 font-bold">
