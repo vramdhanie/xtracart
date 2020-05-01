@@ -10,7 +10,7 @@ const Cart = () => {
   });
   const { cart, cartTotal } = useContext(InventoryContext);
   return (
-    <div className="p-4">
+    <div className="p-4 max-w-5xl mx-auto my-0">
       <div className="flex justify-between">
         <h1 className="text-2xl font-bold my-1 text-blue-900">Shopping Cart</h1>
         {cart.length ? (

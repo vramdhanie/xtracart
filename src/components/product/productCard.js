@@ -23,7 +23,7 @@ const ProductCard = ({ name, description, image, price, id }) => {
           {quantity} in cart
         </div>
       )}
-      <div className="flex md:flex-col">
+      <div className="flex md:flex-col flex-1">
         <div className="flex-1 py-4">
           <img src={image} alt={description} className="w-9/12 my-0 mx-auto" />
         </div>

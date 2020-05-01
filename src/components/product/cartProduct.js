@@ -10,7 +10,7 @@ const CartProduct = ({ name, description, image, price, id }) => {
   const { quantityOfItemInCart } = useContext(InventoryContext);
   const quantity = quantityOfItemInCart(id);
   return (
-    <div className="max-w-4xl py-4 border-gray-300 border-solid border-b w-full rounded overflow-hidden  mx-auto flex items-start">
+    <div className="max-w-5xl py-4 border-gray-300 border-solid border-b w-full rounded overflow-hidden  mx-auto flex items-start">
       <div>
         <img src={image} alt={description} className="w-16" />
       </div>
