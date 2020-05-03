@@ -7,7 +7,7 @@ const CartProduct = ({ name, description, image, price, id }) => {
     currency: "USD",
   });
 
-  const { quantityOfItemInCart } = useContext(InventoryContext);
+  const { quantityOfItemInCart, removeItem } = useContext(InventoryContext);
   const quantity = quantityOfItemInCart(id);
   return (
     <div className="max-w-5xl py-4 border-gray-300 border-solid border-b w-full rounded overflow-hidden  mx-auto flex items-start">
@@ -24,6 +24,7 @@ const CartProduct = ({ name, description, image, price, id }) => {
           <button
             className="px-1 flex-shrink-0 text-sm text-teal-700 hover:text-teal-400"
             type="button"
+            onClick={() => removeItem(id)}
           >
             Remove
           </button>

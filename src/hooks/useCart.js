@@ -1,52 +1,87 @@
 import { useState, useEffect } from "react";
 import useAuth from "./useAuth";
+import { add } from "date-fns";
 
 function useCart(db) {
   const user = useAuth();
   const [cart, setCart] = useState([]);
-  const [guest_cart, setGuestCart] = useState([]);
+  const [cart_id, setCartId] = useState(null);
 
-  // localStorage.setItem("cart_token", 11111);
-  // localStorage.setItem("cart_expiry", new Date(2020, 5, 21, 9, 30, 0));
-
-  useEffect(() => {
-    // check if a valid cart exist on the local storage
+  function getLocalorGuestCart() {
     const cart_token = localStorage.getItem("cart_token");
     const cart_expiry = localStorage.getItem("cart_expiry");
-    //if the cart is valid (not expired) fetch from server
     if (cart_token && cart_expiry && new Date(cart_expiry) > Date.now()) {
-      db.collection("guest_carts")
-        .where("token", "==", cart_token)
+      return db
+        .collection("guest_carts")
+        .doc(cart_token)
         .get()
-        .then(
-          (snapshot) =>
-            snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))[0]
-        )
-        .then((data) => {
-          return {
-            id: data.id,
-            items: data.items.map((item) =>
-              db
-                .collection("products")
-                .doc(item.id)
-                .get()
-                .then((product) => ({
-                  id: product.id,
-                  ...product.data(),
-                }))
-            ),
-          };
-        })
-        .then((data) => {
-          setGuestCart(data);
-        });
-    }
+        .then((cart_snapshot) => ({
+          id: cart_snapshot.id,
+          ...cart_snapshot.data(),
+        }))
 
-    setCart([]);
+        .then((data) => {
+          const remote_cart = data.items;
+          if (cart.length) {
+            //merge carts
+            const local_cart = [...cart];
+            remote_cart.forEach((remote_item) => {
+              const local_id = local_cart.findIndex(
+                (i) => i.id === remote_item.id
+              );
+              if (local_id > -1) {
+                local_cart[local_id] = Object.assign(
+                  remote_item,
+                  local_cart[local_id]
+                );
+              } else {
+                local_cart.push(remote_item);
+              }
+            });
+            return db
+              .collection("guest_carts")
+              .doc(data.id)
+              .set(
+                {
+                  id: data.id,
+                  items: local_cart,
+                },
+                { merge: true }
+              )
+              .then((_) => {
+                localStorage.setItem("cart_token", data.id);
+                localStorage.setItem(
+                  "cart_expiry",
+                  add(new Date(), { days: 7 })
+                );
+                return [local_cart, data.id];
+              });
+          } else {
+            return [remote_cart, data.id];
+          }
+        });
+    } else {
+      return Promise.resolve([[], null]);
+    }
+  }
+
+  function getCartForLoggedInUser([guest_cart, id]) {
+    if (user) {
+      // check if the user has an active cart and fetch it
+      // then, if a guest_cart exist we need to merge the two carts
+      // then delete the guest cart, delete the local storage
+    }
+    return [guest_cart, id];
+  }
+
+  useEffect(() => {
+    getLocalorGuestCart()
+      .then(getCartForLoggedInUser)
+      .then(([cart, id]) => {
+        setCart(cart);
+        setCartId(id);
+      });
   }, [user, db]);
-  //1. if user is logged in fetch cart from server
-  //2. check for cart in local storage - fetch that from server
-  //3. on login, merge the two carts
 
   function addItem(item) {
     item.quantity = 1;
@@ -61,6 +96,21 @@ function useCart(db) {
     setCart(items);
   }
 
+  function removeItem(id) {
+    const updated_cart = [...cart];
+    const index = updated_cart.findIndex((item) => item.id === id);
+    if (index > -1) {
+      updated_cart.splice(index, 1);
+      let collection_name = user ? "cart" : "guest_cart";
+      db.collection(collection_name)
+        .doc(cart_id)
+        .set({ id, items: updated_cart })
+        .then(() => {
+          setCart(updated_cart);
+        });
+    }
+  }
+
   function quantityOfItemInCart(id) {
     const item = cart.find((i) => i.id === id);
     return item ? item.quantity : 0;
@@ -70,7 +120,7 @@ function useCart(db) {
     return cart.reduce((acc, curr) => acc + curr.price * curr.quantity, 0);
   }
 
-  return { cart, guest_cart, addItem, quantityOfItemInCart, cartTotal };
+  return { cart, addItem, removeItem, quantityOfItemInCart, cartTotal };
 }
 
 export default useCart;
