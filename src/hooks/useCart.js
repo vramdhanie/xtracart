@@ -7,7 +7,20 @@ function useCart(db) {
   const [cart, setCart] = useState([]);
   const [cart_id, setCartId] = useState(null);
 
-  function getLocalorGuestCart() {
+  function mergeCarts(into_cart, other_cart) {
+    other_cart.forEach((other_item) => {
+      const into_id = into_cart.findIndex((i) => i.id === other_item.id);
+      if (into_id > -1) {
+        into_cart[into_id] = Object.assign(other_item, into_cart[into_id]);
+      } else {
+        into_cart.push(other_item);
+      }
+    });
+
+    return into_cart;
+  }
+
+  function getLocalOrGuestCart() {
     const cart_token = localStorage.getItem("cart_token");
     const cart_expiry = localStorage.getItem("cart_expiry");
     if (cart_token && cart_expiry && new Date(cart_expiry) > Date.now()) {
@@ -24,20 +37,8 @@ function useCart(db) {
           const remote_cart = data.items;
           if (cart.length) {
             //merge carts
-            const local_cart = [...cart];
-            remote_cart.forEach((remote_item) => {
-              const local_id = local_cart.findIndex(
-                (i) => i.id === remote_item.id
-              );
-              if (local_id > -1) {
-                local_cart[local_id] = Object.assign(
-                  remote_item,
-                  local_cart[local_id]
-                );
-              } else {
-                local_cart.push(remote_item);
-              }
-            });
+            const local_cart = mergeCarts([...cart], remote_cart);
+
             return db
               .collection("guest_carts")
               .doc(data.id)
@@ -67,15 +68,64 @@ function useCart(db) {
 
   function getCartForLoggedInUser([guest_cart, id]) {
     if (user) {
-      // check if the user has an active cart and fetch it
-      // then, if a guest_cart exist we need to merge the two carts
-      // then delete the guest cart, delete the local storage
+      return db
+        .collection("carts")
+        .where("user", "==", user.uid)
+        .get()
+        .then((cartSnapshot) => {
+          if (!cartSnapshot.empty) {
+            const doc = cartSnapshot.docs[0];
+            const user_cart = doc.data().items;
+            const user_cart_id = doc.id;
+            //merge carts
+            const local_cart = mergeCarts(guest_cart, user_cart);
+            return db
+              .collection("carts")
+              .doc(user_cart_id)
+              .set({
+                items: local_cart,
+                user: user.uid,
+              })
+              .then(() => {
+                return [local_cart, user_cart_id];
+              });
+          } else {
+            if (id) {
+              return db
+                .collection("carts")
+                .add({
+                  user: user.uid,
+                  items: guest_cart,
+                })
+                .then((doc) => {
+                  return [guest_cart, doc.id];
+                });
+            }
+            return [guest_cart, id];
+          }
+        })
+        .then(([user_cart, user_cart_id]) => {
+          if (id) {
+            localStorage.removeItem("cart_token");
+            localStorage.removeItem("cart_expiry");
+
+            return db
+              .collection("guest_carts")
+              .doc(id)
+              .delete()
+              .then(() => {
+                return [user_cart, user_cart_id];
+              });
+          } else {
+            return [user_cart, user_cart_id];
+          }
+        });
     }
     return [guest_cart, id];
   }
 
   useEffect(() => {
-    getLocalorGuestCart()
+    getLocalOrGuestCart()
       .then(getCartForLoggedInUser)
       .then(([cart, id]) => {
         setCart(cart);
@@ -93,7 +143,59 @@ function useCart(db) {
     } else {
       items.push(item);
     }
-    setCart(items);
+    if (user) {
+      if (cart_id) {
+        db.collection("carts")
+          .doc(cart_id)
+          .set(
+            {
+              user: user.uid,
+              items,
+            },
+            { merge: true }
+          )
+          .then(() => {
+            setCart(items);
+          });
+      } else {
+        db.collection("carts")
+          .add({
+            user: user.uid,
+            items,
+          })
+          .then((doc) => {
+            setCart(items);
+            setCartId(doc.id);
+          });
+      }
+    } else {
+      if (cart_id) {
+        db.collection("guest_carts")
+          .doc(cart_id)
+          .set(
+            {
+              id: cart_id,
+              items,
+            },
+            { merge: true }
+          )
+          .then(() => {
+            localStorage.setItem("cart_expiry", add(new Date(), { days: 7 }));
+            setCart(items);
+          });
+      } else {
+        db.collection("guest_carts")
+          .add({
+            items,
+          })
+          .then((doc) => {
+            localStorage.setItem("cart_token", doc.id);
+            localStorage.setItem("cart_expiry", add(new Date(), { days: 7 }));
+            setCart(items);
+            setCartId(doc.id);
+          });
+      }
+    }
   }
 
   function removeItem(id) {
@@ -101,7 +203,7 @@ function useCart(db) {
     const index = updated_cart.findIndex((item) => item.id === id);
     if (index > -1) {
       updated_cart.splice(index, 1);
-      let collection_name = user ? "cart" : "guest_cart";
+      let collection_name = user ? "carts" : "guest_carts";
       db.collection(collection_name)
         .doc(cart_id)
         .set({ id, items: updated_cart })
