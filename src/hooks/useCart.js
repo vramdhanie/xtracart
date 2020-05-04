@@ -204,9 +204,16 @@ function useCart(db) {
     if (index > -1) {
       updated_cart.splice(index, 1);
       let collection_name = user ? "carts" : "guest_carts";
+      const newObject = {
+        id,
+        items: updated_cart,
+      };
+      if (user) {
+        newObject.user = user.uid;
+      }
       db.collection(collection_name)
         .doc(cart_id)
-        .set({ id, items: updated_cart })
+        .set(newObject)
         .then(() => {
           setCart(updated_cart);
         });
