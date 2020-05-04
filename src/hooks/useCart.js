@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import useAuth from "./useAuth";
 import { add } from "date-fns";
+import { COLLECTION_NAMES, LOCAL_STORAGE_NAMES } from "../utilities/constants";
 
 function useCart(db) {
   const user = useAuth();
   const [cart, setCart] = useState([]);
   const [cart_id, setCartId] = useState(null);
+  const { CARTS, GUEST_CARTS } = COLLECTION_NAMES;
+  const { CART_TOKEN, CART_EXPIRY } = LOCAL_STORAGE_NAMES;
 
   function mergeCarts(into_cart, other_cart) {
     other_cart.forEach((other_item) => {
@@ -20,111 +23,111 @@ function useCart(db) {
     return into_cart;
   }
 
-  function getLocalOrGuestCart() {
-    const cart_token = localStorage.getItem("cart_token");
-    const cart_expiry = localStorage.getItem("cart_expiry");
-    if (cart_token && cart_expiry && new Date(cart_expiry) > Date.now()) {
-      return db
-        .collection("guest_carts")
-        .doc(cart_token)
-        .get()
-        .then((cart_snapshot) => ({
-          id: cart_snapshot.id,
-          ...cart_snapshot.data(),
-        }))
-
-        .then((data) => {
-          const remote_cart = data.items;
-          if (cart.length) {
-            //merge carts
-            const local_cart = mergeCarts([...cart], remote_cart);
-
-            return db
-              .collection("guest_carts")
-              .doc(data.id)
-              .set(
-                {
-                  id: data.id,
-                  items: local_cart,
-                },
-                { merge: true }
-              )
-              .then((_) => {
-                localStorage.setItem("cart_token", data.id);
-                localStorage.setItem(
-                  "cart_expiry",
-                  add(new Date(), { days: 7 })
-                );
-                return [local_cart, data.id];
-              });
-          } else {
-            return [remote_cart, data.id];
-          }
-        });
-    } else {
-      return Promise.resolve([[], null]);
-    }
-  }
-
-  function getCartForLoggedInUser([guest_cart, id]) {
-    if (user) {
-      return db
-        .collection("carts")
-        .where("user", "==", user.uid)
-        .get()
-        .then((cartSnapshot) => {
-          if (!cartSnapshot.empty) {
-            const doc = cartSnapshot.docs[0];
-            const user_cart = doc.data().items;
-            const user_cart_id = doc.id;
-            //merge carts
-            const local_cart = mergeCarts(guest_cart, user_cart);
-            return db
-              .collection("carts")
-              .doc(user_cart_id)
-              .set({
-                items: local_cart,
-                user: user.uid,
-              })
-              .then(() => {
-                return [local_cart, user_cart_id];
-              });
-          } else {
-            if (id) {
-              return db
-                .collection("carts")
-                .add({
-                  user: user.uid,
-                  items: guest_cart,
-                })
-                .then((doc) => {
-                  return [guest_cart, doc.id];
-                });
-            }
-            return [guest_cart, id];
-          }
-        })
-        .then(([user_cart, user_cart_id]) => {
-          if (id) {
-            localStorage.removeItem("cart_token");
-            localStorage.removeItem("cart_expiry");
-
-            return db
-              .collection("guest_carts")
-              .doc(id)
-              .delete()
-              .then(() => {
-                return [user_cart, user_cart_id];
-              });
-          } else {
-            return [user_cart, user_cart_id];
-          }
-        });
-    }
-    return [guest_cart, id];
-  }
-
   useEffect(() => {
+    function getLocalOrGuestCart() {
+      const cart_token = localStorage.getItem(CART_TOKEN);
+      const cart_expiry = localStorage.getItem(CART_EXPIRY);
+      if (cart_token && cart_expiry && new Date(cart_expiry) > Date.now()) {
+        return db
+          .collection(GUEST_CARTS)
+          .doc(cart_token)
+          .get()
+          .then((cart_snapshot) => ({
+            id: cart_snapshot.id,
+            ...cart_snapshot.data(),
+          }))
+
+          .then((data) => {
+            const remote_cart = data.items;
+            if (cart.length) {
+              //merge carts
+              const local_cart = mergeCarts([...cart], remote_cart);
+
+              return db
+                .collection(GUEST_CARTS)
+                .doc(data.id)
+                .set(
+                  {
+                    id: data.id,
+                    items: local_cart,
+                  },
+                  { merge: true }
+                )
+                .then((_) => {
+                  localStorage.setItem(CART_TOKEN, data.id);
+                  localStorage.setItem(
+                    CART_EXPIRY,
+                    add(new Date(), { days: 7 })
+                  );
+                  return [local_cart, data.id];
+                });
+            } else {
+              return [remote_cart, data.id];
+            }
+          });
+      } else {
+        return Promise.resolve([[], null]);
+      }
+    }
+
+    function getCartForLoggedInUser([guest_cart, id]) {
+      if (user) {
+        return db
+          .collection(CARTS)
+          .where("user", "==", user.uid)
+          .get()
+          .then((cartSnapshot) => {
+            if (!cartSnapshot.empty) {
+              const doc = cartSnapshot.docs[0];
+              const user_cart = doc.data().items;
+              const user_cart_id = doc.id;
+              //merge carts
+              const local_cart = mergeCarts(guest_cart, user_cart);
+              return db
+                .collection(CARTS)
+                .doc(user_cart_id)
+                .set({
+                  items: local_cart,
+                  user: user.uid,
+                })
+                .then(() => {
+                  return [local_cart, user_cart_id];
+                });
+            } else {
+              if (id) {
+                return db
+                  .collection(CARTS)
+                  .add({
+                    user: user.uid,
+                    items: guest_cart,
+                  })
+                  .then((doc) => {
+                    return [guest_cart, doc.id];
+                  });
+              }
+              return [guest_cart, id];
+            }
+          })
+          .then(([user_cart, user_cart_id]) => {
+            if (id) {
+              localStorage.removeItem(CART_TOKEN);
+              localStorage.removeItem(CART_EXPIRY);
+
+              return db
+                .collection(GUEST_CARTS)
+                .doc(id)
+                .delete()
+                .then(() => {
+                  return [user_cart, user_cart_id];
+                });
+            } else {
+              return [user_cart, user_cart_id];
+            }
+          });
+      }
+      return [guest_cart, id];
+    }
+
     getLocalOrGuestCart()
       .then(getCartForLoggedInUser)
       .then(([cart, id]) => {
@@ -145,7 +148,7 @@ function useCart(db) {
     }
     if (user) {
       if (cart_id) {
-        db.collection("carts")
+        db.collection(CARTS)
           .doc(cart_id)
           .set(
             {
@@ -158,7 +161,7 @@ function useCart(db) {
             setCart(items);
           });
       } else {
-        db.collection("carts")
+        db.collection(CARTS)
           .add({
             user: user.uid,
             items,
@@ -170,7 +173,7 @@ function useCart(db) {
       }
     } else {
       if (cart_id) {
-        db.collection("guest_carts")
+        db.collection(GUEST_CARTS)
           .doc(cart_id)
           .set(
             {
@@ -180,17 +183,17 @@ function useCart(db) {
             { merge: true }
           )
           .then(() => {
-            localStorage.setItem("cart_expiry", add(new Date(), { days: 7 }));
+            localStorage.setItem(CART_EXPIRY, add(new Date(), { days: 7 }));
             setCart(items);
           });
       } else {
-        db.collection("guest_carts")
+        db.collection(GUEST_CARTS)
           .add({
             items,
           })
           .then((doc) => {
-            localStorage.setItem("cart_token", doc.id);
-            localStorage.setItem("cart_expiry", add(new Date(), { days: 7 }));
+            localStorage.setItem(CART_TOKEN, doc.id);
+            localStorage.setItem(CART_EXPIRY, add(new Date(), { days: 7 }));
             setCart(items);
             setCartId(doc.id);
           });
@@ -203,7 +206,7 @@ function useCart(db) {
     const index = updated_cart.findIndex((item) => item.id === id);
     if (index > -1) {
       updated_cart.splice(index, 1);
-      let collection_name = user ? "carts" : "guest_carts";
+      let collection_name = user ? CARTS : GUEST_CARTS;
       const newObject = {
         id,
         items: updated_cart,

@@ -31,7 +31,7 @@ function App() {
             <main className="flex-1">
               <Switch>
                 <Route path="/" exact component={Shop} />
-                <Route path="/login" component={Login} />
+                <Route path="/login/:next?" component={Login} />
                 <Route path="/forgot" component={ForgotPassword} />
                 <Route path="/checkout" component={Checkout} />
                 <Route path="/cart" component={Cart} />

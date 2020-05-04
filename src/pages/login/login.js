@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useHistory, Link } from "react-router-dom";
+import { useHistory, Link, useParams } from "react-router-dom";
 import classNames from "classnames";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -7,6 +7,10 @@ import firebase from "../../firebase";
 
 const Login = () => {
   const history = useHistory();
+  let { next = "/" } = useParams();
+  if (!next.startsWith("/")) {
+    next = `/${next}`;
+  }
   const [login, setLogin] = useState(true);
   const [firebaseError, setFirebaseError] = useState(null);
   const formik = useFormik({
@@ -35,7 +39,7 @@ const Login = () => {
         login
           ? await firebase.login(email, password)
           : await firebase.register(fullName, phoneNumber, email, password);
-        history.push("/");
+        history.push(next);
       } catch (err) {
         console.error("Authentication Error", err);
         setFirebaseError(err.message);

@@ -5,8 +5,8 @@ import { Link } from "react-router-dom";
 import { MdCheck } from "react-icons/md";
 
 const CartSummary = () => {
-  const { user, firebase } = useContext(FirebaseContext);
-  const { cart, cartTotal, guest_cart } = useContext(InventoryContext);
+  const { user } = useContext(FirebaseContext);
+  const { cart, cartTotal } = useContext(InventoryContext);
   const lastItem = cart.length ? cart[cart.length - 1] : null;
   const formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
