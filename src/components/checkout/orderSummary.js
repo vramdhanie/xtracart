@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import InventoryContext from "../../data/inventoryContext";
 
-const OrderSummary = () => {
+const OrderSummary = ({ location, time }) => {
   const { cart, cartTotal } = useContext(InventoryContext);
   const formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -11,7 +11,9 @@ const OrderSummary = () => {
     <div className="py-2 px-1">
       <h2 className="font-semibold text-lg">Order Summary</h2>
       <div className="border border-gray-400 p-1 rounded shadow">
-        <div className="text-sm text-gray-600">To pick up</div>
+        <div className="text-sm text-gray-600">
+          To pick up {location ? `at ${location}` : ""}
+        </div>
         <div className="my-1">
           {cart.map(({ id, image, name, description, quantity, price }) => (
             <div

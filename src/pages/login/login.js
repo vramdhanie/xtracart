@@ -31,6 +31,7 @@ const Login = () => {
         /^(\d{3})[- ]?(\d{4})$/,
         "Phone number is not valid"
       ),
+      //.required("Please provide a phone number"),
     }),
     onSubmit: async (values) => {
       const { fullName, phoneNumber, email, password } = values;
@@ -77,17 +78,17 @@ const Login = () => {
                   className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                   htmlFor="grid-phone-number"
                 >
-                  Phone Number
+                  Phone Number <span className="text-red-500">*</span>
                 </label>
                 <div className="flex">
                   <input
                     disabled={true}
                     value="1 (868)"
-                    className="flex-grow-0 appearance-none block w-full bg-gray-100 text-gray-500 border border-gray-200 rounded-l py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                    className="flex-grow-0 flex-shrink-0 w-16 appearance-none block bg-gray-100 text-gray-500 border border-gray-200 rounded-l py-3 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500 w-8"
                   />
                   <input
                     className={classNames(
-                      "flex-grow-1",
+                      "flex-1",
                       "appearance-none block bg-gray-200 text-gray-700 border border-gray-200 rounded-r py-3 px-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500",
                       {
                         "border-gray-200": !(

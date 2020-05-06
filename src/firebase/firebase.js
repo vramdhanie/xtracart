@@ -2,6 +2,9 @@ import app from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
 import firebaseConfig from "./config";
+import { COLLECTION_NAMES } from "../utilities/constants";
+
+const { USERS } = COLLECTION_NAMES;
 
 // Initialize Firebase
 
@@ -36,6 +39,21 @@ class Firebase {
 
   async resetPassword(email) {
     await this.auth.sendPasswordResetEmail(email);
+  }
+
+  async getUserPhone(uid) {
+    return await this.db
+      .collection(USERS)
+      .where("id", "==", uid)
+      .get()
+      .then((snap) => {
+        if (!snap.empty) {
+          let doc = snap.docs[0];
+          let phoneNumber = doc.data().phoneNumber;
+          return phoneNumber;
+        }
+        return "";
+      });
   }
 }
 
