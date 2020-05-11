@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useHistory, Link } from "react-router-dom";
+import { useHistory, Link, useParams } from "react-router-dom";
 import classNames from "classnames";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -7,13 +7,17 @@ import firebase from "../../firebase";
 
 const Login = () => {
   const history = useHistory();
+  let { next = "/" } = useParams();
+  if (!next.startsWith("/")) {
+    next = `/${next}`;
+  }
   const [login, setLogin] = useState(true);
   const [firebaseError, setFirebaseError] = useState(null);
   const formik = useFormik({
     initialValues: {
-      firstName: "",
-      lastName: "",
+      fullName: "",
       email: "",
+      phoneNumber: "",
       password: "",
     },
     validationSchema: Yup.object({
@@ -23,14 +27,20 @@ const Login = () => {
       password: Yup.string()
         .min(6, "Password must be at least 6 characters long")
         .required("Please enter a password"),
+      phoneNumber: Yup.string().matches(
+        /^(\d{3})[- ]?(\d{4})$/,
+        "Phone number is not valid"
+      ),
+      //.required("Please provide a phone number"),
     }),
     onSubmit: async (values) => {
-      const { firstName, lastName, email, password } = values;
+      const { fullName, phoneNumber, email, password } = values;
+
       try {
         login
           ? await firebase.login(email, password)
-          : await firebase.register(firstName, lastName, email, password);
-        history.push("/");
+          : await firebase.register(fullName, phoneNumber, email, password);
+        history.push(next);
       } catch (err) {
         console.error("Authentication Error", err);
         setFirebaseError(err.message);
@@ -50,34 +60,58 @@ const Login = () => {
               <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                 <label
                   className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                  htmlFor="grid-first-name"
+                  htmlFor="grid-full-name"
                 >
-                  First Name
+                  Name
                 </label>
                 <input
                   className="appearance-none block w-full bg-gray-200 text-gray-700  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-                  id="grid-first-name"
+                  id="grid-full-name"
                   type="text"
-                  placeholder="Jane"
-                  name="firstName"
-                  {...formik.getFieldProps("firstName")}
+                  placeholder="Jane Doe"
+                  name="fullName"
+                  {...formik.getFieldProps("fullName")}
                 />
               </div>
               <div className="w-full md:w-1/2 px-3">
                 <label
                   className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                  htmlFor="grid-last-name"
+                  htmlFor="grid-phone-number"
                 >
-                  Last Name
+                  Phone Number <span className="text-red-500">*</span>
                 </label>
-                <input
-                  className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                  id="grid-last-name"
-                  type="text"
-                  placeholder="Doe"
-                  name="lastName"
-                  {...formik.getFieldProps("lastName")}
-                />
+                <div className="flex">
+                  <input
+                    disabled={true}
+                    value="1 (868)"
+                    className="flex-grow-0 flex-shrink-0 w-16 appearance-none block bg-gray-100 text-gray-500 border border-gray-200 rounded-l py-3 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500 w-8"
+                  />
+                  <input
+                    className={classNames(
+                      "flex-1",
+                      "appearance-none block bg-gray-200 text-gray-700 border border-gray-200 rounded-r py-3 px-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500",
+                      {
+                        "border-gray-200": !(
+                          formik.touched.phoneNumber &&
+                          formik.errors.phoneNumber
+                        ),
+                        "border-red-500":
+                          formik.touched.phoneNumber &&
+                          formik.errors.phoneNumber,
+                      }
+                    )}
+                    id="grid-phone-number"
+                    type="text"
+                    placeholder="777-1111"
+                    name="phoneNumber"
+                    {...formik.getFieldProps("phoneNumber")}
+                  />
+                </div>
+                {formik.touched.phoneNumber && formik.errors.phoneNumber ? (
+                  <p className="text-red-500 text-xs italic">
+                    {formik.errors.phoneNumber}
+                  </p>
+                ) : null}
               </div>
             </div>
           )}
@@ -90,6 +124,7 @@ const Login = () => {
               >
                 Email <span className="text-red-500">*</span>
               </label>
+
               <input
                 className={classNames(
                   "appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500",
