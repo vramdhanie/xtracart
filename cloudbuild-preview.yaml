@@ -33,5 +33,5 @@ steps:
         "--token",
         "$_TOKEN",
         "--only",
-        "hosting:xtracart",
+        "hosting:xtracart-preview",
       ]
