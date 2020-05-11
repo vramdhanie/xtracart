@@ -14,9 +14,9 @@ const Checkout = () => {
     initialValues: {
       store_location: "",
       pickup_time: add(new Date(), { hours: 8 }),
-      user_name: user ? user.displayName : "",
+      user_name: "",
       phone_number: "",
-      email: user ? user.email : "",
+      email: "",
     },
     validationSchema: Yup.object({
       store_location: Yup.string().required("Please select a location"),
@@ -38,9 +38,11 @@ const Checkout = () => {
       (async () => {
         let phone = await firebase.getUserPhone(user.uid);
         formik.setFieldValue("phone_number", phone);
+        formik.setFieldValue("user_name", user.displayName);
+        formik.setFieldValue("email", user.email);
       })();
     }
-  }, []);
+  }, [user]);
 
   return (
     <div className="max-w-5xl mx-auto my-0 p-2 grid grid-cols-1 md:grid-cols-3 gap-2 h-full">
